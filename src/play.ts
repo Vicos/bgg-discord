@@ -10,6 +10,9 @@ class Play {
   readonly gameId: number;
   readonly players: Player[];
 
+  #thumbnail?: string;
+  #image?: string;
+
   constructor(elt: GoogleAppsScript.XML_Service.Element) {
     this.id = Number.parseInt(elt.getAttribute("id").getValue(), 10);
     this.date = new Date(elt.getAttribute("date").getValue());
@@ -41,6 +44,15 @@ class Play {
     }
   }
 
+  addItemDetails(elt: GoogleAppsScript.XML_Service.Element) {
+    if (elt.getChild("thumbnail")) {
+      this.#thumbnail = elt.getChild("thumbnail").getText();
+    }
+    if (elt.getChild("image")) {
+      this.#image = elt.getChild("image").getText();
+    }
+  }
+
   get sortedPlayers() {
     // TODO: guess the sort way for this game (i.e if higher score is better)
     return this.players.sort((a, b) => {
@@ -51,7 +63,7 @@ class Play {
       }
     });
   }
-  
+
   generateScoreTable() {
     const players = this.sortedPlayers;
     const playerColSize = 1 + Math.max(...players.map((p) => p.name.length));
@@ -65,5 +77,15 @@ class Play {
       scoreTable.push(`${name}│${score}`);
     }
     return scoreTable.join("\n");
+  }
+
+  get url() {
+    return `https://www.boardgamegeek.com/play/details/${this.id}`
+  }
+  get thumbnail() {
+    return this.#thumbnail;
+  }
+  get image() {
+    return this.#image;
   }
 }

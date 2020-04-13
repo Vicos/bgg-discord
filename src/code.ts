@@ -5,6 +5,7 @@ function publishNewerPlaysOnDiscord(username: string) {
     parse,
     filterBuddies,
     filterNewer,
+    fetchDetails,
     convertIntoEmbeds,
     publishEmbeds
   );
@@ -58,11 +59,31 @@ function* filterNewer(plays: Iterable<Play>) {
   props.setProperty("publishedIds", JSON.stringify(newPubIds));
 }
 
+function* fetchDetails(playsItr: Iterable<Play>) {
+  const plays = [...playsItr];
+  if (plays.length === 0) {
+    return;
+  }
+  const thingsIdsStr = plays.map((p) => p.gameId).join(",");
+  const url = `https://www.boardgamegeek.com/xmlapi2/things?id=${thingsIdsStr}`;
+  Logger.log(`Fetching BGG things for ${thingsIdsStr}`);
+  const xml = UrlFetchApp.fetch(url).getContentText();
+
+  const doc = XmlService.parse(xml);
+  const root = doc.getRootElement();
+  for (const item of root.getChildren("item")) {
+    const itemid = Number.parseInt(item.getAttribute("id").getValue(), 10);
+    const play = plays.find((p) => p.gameId === itemid);
+    play.addItemDetails(item);
+    yield play;
+  }
+}
+
 function* convertIntoEmbeds(plays: Iterable<Play>) {
   for (const p of plays) {
     const embed: Discord.Embed = {
       title: p.gameName,
-      url: `https://www.boardgamegeek.com/play/details/${p.id}`,
+      url: p.url,
       description:
         `Partie de **${p.gameName}** organisé le ` +
         `${p.date.toLocaleDateString()}\n` +
@@ -70,6 +91,9 @@ function* convertIntoEmbeds(plays: Iterable<Play>) {
         p.generateScoreTable() +
         "\n```",
     };
+    if (p.thumbnail) {
+      embed.thumbnail = { url: p.thumbnail };
+    }
     yield embed;
   }
 }
