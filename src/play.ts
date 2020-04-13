@@ -67,21 +67,30 @@ class Play {
   generateScoreTable() {
     const players = this.sortedPlayers;
     const playerColSize = Math.max(...players.map((p) => p.name.length));
+    const colorColSize = Math.max(
+      ...players.map((p) => (p.color && p.color.length) || 0)
+    );
     const scoreTable = [];
     for (const player of players) {
-      const cells = []
-      cells.push(player.name.padEnd(playerColSize))
-      const details = []
+      const cells = [];
+      // Player name
+      cells.push(player.name.padEnd(playerColSize));
+      // Color
+      if (colorColSize > 0) {
+        cells.push((player.color || "").padEnd(colorColSize));
+      }
+      // Details
+      const details = [];
       if (Number.isFinite(player.score)) {
-        details.push(`${player.score}`)
+        details.push(`${player.score}`);
       }
       if (player.isWinner) {
-        details.push("🥇")
+        details.push("🥇");
       }
       if (player.isNew) {
-        details.push("🔰")
+        details.push("🔰");
       }
-      cells.push(details.join(" "))
+      cells.push(details.join(" "));
       scoreTable.push(cells.join(" │ "));
     }
     return scoreTable.join("\n");
