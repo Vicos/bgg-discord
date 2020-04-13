@@ -66,15 +66,23 @@ class Play {
 
   generateScoreTable() {
     const players = this.sortedPlayers;
-    const playerColSize = 1 + Math.max(...players.map((p) => p.name.length));
+    const playerColSize = Math.max(...players.map((p) => p.name.length));
     const scoreTable = [];
     for (const player of players) {
-      const name = player.name.padEnd(playerColSize);
-      const score =
-        ` ${player.score} ` +
-        (player.isWinner ? "🥇" : "") +
-        (player.isNew ? "🔰" : "");
-      scoreTable.push(`${name}│${score}`);
+      const cells = []
+      cells.push(player.name.padEnd(playerColSize))
+      const details = []
+      if (Number.isFinite(player.score)) {
+        details.push(`${player.score}`)
+      }
+      if (player.isWinner) {
+        details.push("🥇")
+      }
+      if (player.isNew) {
+        details.push("🔰")
+      }
+      cells.push(details.join(" "))
+      scoreTable.push(cells.join(" │ "));
     }
     return scoreTable.join("\n");
   }
