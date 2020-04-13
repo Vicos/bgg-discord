@@ -1,7 +1,12 @@
 {
-  "timeZone": "Europe/Paris",
-  "dependencies": {
-  },
+  "runtimeVersion": "V8",
   "exceptionLogging": "STACKDRIVER",
-  "runtimeVersion": "V8"
+  "timeZone": "Europe/Paris",
+  "dependencies": {},
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/script.external_request"
+  ],
+  "urlFetchWhitelist": [
+    "https://boardgamegeek.com/xmlapi2/"
+  ]
 }
