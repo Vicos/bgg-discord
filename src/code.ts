@@ -64,7 +64,7 @@ function* fetchDetails(playsItr: Iterable<Play>) {
   if (plays.length === 0) {
     return;
   }
-  const thingsIdsStr = plays.map((p) => p.gameId).join(",");
+  const thingsIdsStr = [...new Set(plays.map((p) => p.gameId))].join(",");
   const url = `https://www.boardgamegeek.com/xmlapi2/things?id=${thingsIdsStr}`;
   Logger.log(`Fetching BGG things for ${thingsIdsStr}`);
   const xml = UrlFetchApp.fetch(url).getContentText();
@@ -72,11 +72,12 @@ function* fetchDetails(playsItr: Iterable<Play>) {
   const doc = XmlService.parse(xml);
   const root = doc.getRootElement();
   for (const item of root.getChildren("item")) {
-    const itemid = Number.parseInt(item.getAttribute("id").getValue(), 10);
-    const play = plays.find((p) => p.gameId === itemid);
-    play.addItemDetails(item);
-    yield play;
+    const itemId = Number.parseInt(item.getAttribute("id").getValue(), 10);
+    plays
+      .filter((p) => p.gameId === itemId)
+      .forEach((p) => p.addItemDetails(item));
   }
+  yield* plays;
 }
 
 function* convertIntoEmbeds(plays: Iterable<Play>) {
