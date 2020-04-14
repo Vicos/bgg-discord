@@ -13,7 +13,7 @@ function publishNewerPlaysOnDiscord(username: string) {
 
 function fetch(username: string) {
   const now = new Date();
-  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
+  const oneWeekAgo = new Date(now.getTime() - 3 * 24 * 3600 * 1000);
   const oneWeekAgoStr = oneWeekAgo.toISOString().slice(0, 10);
   const baseurl = "https://www.boardgamegeek.com/xmlapi2/plays";
   const qs = `?type=boardgame&username=${username}&mindate=${oneWeekAgoStr}`;
